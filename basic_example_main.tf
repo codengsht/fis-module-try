@@ -7,11 +7,17 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Data source to get existing IAM role for FIS
+data "aws_iam_role" "fis" {
+  name = "fis-experiment-role"  # Replace with your existing FIS role name
+}
+
 module "fis_experiment" {
   source = "../../"
 
   description = "Basic FIS experiment to stop EC2 instances"
   name_prefix = "basic-fis"
+  role_arn    = data.aws_iam_role.fis.arn
 
   actions = [
     {
@@ -46,9 +52,4 @@ output "experiment_template_id" {
 output "experiment_template_arn" {
   description = "The ARN of the FIS experiment template"
   value       = module.fis_experiment.experiment_template_arn
-}
-
-output "iam_role_arn" {
-  description = "The ARN of the IAM role used by the FIS experiment"
-  value       = module.fis_experiment.iam_role_arn
 }

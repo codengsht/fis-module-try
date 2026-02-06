@@ -1,29 +1,9 @@
 # AWS FIS Experiment Template Module
-# Core resources: FIS template, IAM role, CloudWatch alarms
+# Core resources: FIS template, CloudWatch alarms
 
-# IAM assume role policy for FIS service principal
-data "aws_iam_policy_document" "fis_assume_role" {
-  statement {
-    effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["fis.amazonaws.com"]
-    }
-    actions = ["sts:AssumeRole"]
-  }
-}
-
-# IAM role for FIS experiment execution
-resource "aws_iam_role" "fis" {
-  name               = "${var.name_prefix}-fis-role"
-  assume_role_policy = data.aws_iam_policy_document.fis_assume_role.json
-  tags               = var.tags
-}
-
-# IAM policy attachment for FIS experiment execution permissions
-resource "aws_iam_role_policy_attachment" "fis" {
-  role       = aws_iam_role.fis.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSFaultInjectionSimulatorEC2Access"
+# Data source to get the centrally-managed FIS IAM role
+data "aws_iam_role" "fis" {
+  name = "AWSFisExperimentRole"
 }
 
 # CloudWatch metric alarms for FIS experiment stop conditions
@@ -48,7 +28,7 @@ resource "aws_cloudwatch_metric_alarm" "stop_condition" {
 # will be added in tasks 6.2-6.5
 resource "aws_fis_experiment_template" "this" {
   description = var.description
-  role_arn    = aws_iam_role.fis.arn
+  role_arn    = data.aws_iam_role.fis.arn
 
   # Dynamic action blocks - iterates over actions variable
   dynamic "action" {

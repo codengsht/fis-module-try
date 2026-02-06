@@ -12,6 +12,11 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Data source to get existing IAM role for FIS
+data "aws_iam_role" "fis" {
+  name = "fis-experiment-role"  # Replace with your existing FIS role name
+}
+
 # S3 bucket for FIS experiment logs
 resource "aws_s3_bucket" "fis_logs" {
   bucket_prefix = "fis-experiment-logs-"
@@ -39,6 +44,7 @@ module "fis_experiment" {
 
   description = "Complete FIS experiment demonstrating all module features"
   name_prefix = "complete-fis"
+  role_arn    = data.aws_iam_role.fis.arn
 
   # Multiple actions with dependencies
   actions = [
@@ -155,11 +161,6 @@ output "experiment_template_id" {
 output "experiment_template_arn" {
   description = "The ARN of the FIS experiment template"
   value       = module.fis_experiment.experiment_template_arn
-}
-
-output "iam_role_arn" {
-  description = "The ARN of the IAM role used by the FIS experiment"
-  value       = module.fis_experiment.iam_role_arn
 }
 
 output "cloudwatch_alarm_arns" {

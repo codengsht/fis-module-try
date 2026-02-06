@@ -10,11 +10,6 @@ output "experiment_template_arn" {
   value       = aws_fis_experiment_template.this.arn
 }
 
-output "iam_role_arn" {
-  description = "The ARN of the IAM role used by the FIS experiment"
-  value       = aws_iam_role.fis.arn
-}
-
 output "cloudwatch_alarm_arns" {
   description = "Map of CloudWatch alarm names to their ARNs (for stop conditions)"
   value       = { for k, v in aws_cloudwatch_metric_alarm.stop_condition : k => v.arn }
